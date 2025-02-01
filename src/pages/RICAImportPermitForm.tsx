@@ -1,10 +1,11 @@
-import React, { useState } from "react";
-import { useForm, Controller } from "react-hook-form";
+import  { useState } from "react";
+import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { BiSolidFile } from 'react-icons/bi'; 
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { Spinner } from "flowbite-react";
 
 
 const schema = yup.object().shape({
@@ -14,7 +15,7 @@ const schema = yup.object().shape({
   .matches(/^\d{16}$/, "ID number must be exactly 16 digits")
   .when("applicantCitizenship", {
     is: (val:string) => val === "Rwandan", 
-    then: (schema) => schema.required("Identification Document number is required"),
+    then: (schema) => schema.required("This Field is required"),
     otherwise: (schema) => schema.notRequired(),
   }),
 
@@ -22,22 +23,21 @@ const schema = yup.object().shape({
   .string()
   .when("applicantCitizenship", {
     is: (val:string) => val === "Foreigner", 
-    then: (schema) => schema.required("Passport number is required"),
+    then: (schema) => schema.required("This Field is required"),
     otherwise: (schema) => schema.notRequired(),
   }),
-  otherNames: yup.string().required("Other names are required"),
-  surname: yup.string().required("Surname is required"),
-  nationality: yup.string().required("Nationality is required"),
+  otherNames: yup.string().required("This Field is required"),
+  surname: yup.string().required("This Field is required"),
   phoneNumber: yup.string(),
   countryCode:yup.string(),
   email: yup.string().email("Invalid email format"),
-  location: yup.string().required("Location is required"),
-  businessType: yup.string().required("Business Type is required"),
+  location: yup.string().required("This Field is required"),
+  businessType: yup.string().required("This Field is required"),
   companyName: yup.string().required("Company Name is required"),
-  tinNumber: yup.string().matches(/^\d{9}$/, "Please provide a valid TIN number").required("TIN Number is required"),
+  tinNumber: yup.string().matches(/^\d{9}$/, "Please provide a valid TIN number").required("This field is required"),
   regDate: yup.date().required("Registration Date is required"),
-  businessLocation: yup.string().required("Business location is required"),
-  purposeOfImportation: yup.string().required("Purpose of importation is required"),
+  businessLocation: yup.string().required("This Field is required"),
+  purposeOfImportation: yup.string().required("This Field is required"),
   specifyPurpose: yup
   .string()
   .when("purposeOfImportation", {
@@ -46,11 +46,11 @@ const schema = yup.object().shape({
     otherwise: (schema) => schema.notRequired(),
   }),
 
-  productCategory: yup.string().required("Product category is required"),
-  productName: yup.string().required("Product name is required"),
-  description: yup.string().required("Description is required"),
-  unit: yup.string().required("Unit of measurement is required"),
-  quantity: yup.number().required("Quantity is required"),
+  productCategory: yup.string().required("This Field is required"),
+  productName: yup.string().required("This Field is required"),
+  description: yup.string().required("This Field is required"),
+  unit: yup.string().required("This Field is required"),
+  quantity: yup.number().required("This Field is required"),
 });
 
 
@@ -60,20 +60,22 @@ const RicaImportPermitForm = () => {
     register,
     handleSubmit,
     watch,
-    control,
-    formState: { errors },
+    formState: { errors},
   } = useForm({
     resolver: yupResolver(schema),
+    mode: "onChange",
   });
 
-  const [citizenship, setCitizenship] = useState("");
-  const [purpose, setPurpose] = useState("");
+  const citizenship = watch("applicantCitizenship");
+  const purpose = watch("purposeOfImportation");
+
   const [submitting, setSubmitting] = useState(false);
 
 
-
-  const onSubmit = async (data:any) => {
+  const onSubmit = async (data:any, event?: any) => {
+    if (event) event.preventDefault(); 
     console.log("Submitting the form with data:", data); 
+    setSubmitting(true);
     try {
       const response = await fetch("http://localhost:8080/api/send-email", {
         method: "POST",
@@ -82,12 +84,18 @@ const RicaImportPermitForm = () => {
         },
         body: JSON.stringify({
           email: data.email, 
+          phoneNumber:data.countryCode+data.phoneNumber,
           otherNames: data.otherNames,
           surname: data.surname,
           applicantCitizenship: data.applicantCitizenship,
-          nationality: data.nationality,
+          passportNumber:data.passportNumber,
+          idNumber:data.idDocNumber,
+          ownerAddress:data.location,
+          businessType:data.businessType,
           companyName: data.companyName,
+          companyAddress:data.businessLocation,
           tinNumber: data.tinNumber,
+          regDate:data.regDate,
           productName: data.productName,
           description: data.description,
           quantity: data.quantity,
@@ -104,50 +112,11 @@ const RicaImportPermitForm = () => {
       console.error("Error sending email:", error);
       toast.error("Error sending email. Please try again.");
     }
-  };
-  
-
-  const onSubmitHard = async () => {
-    setSubmitting(true);
-    // Hardcoded form data
-    const hardCodedData = {
-      email: "ishimweinstein@gmail.com",
-      otherNames: "Ishimwe",
-      surname: "Pacifique",
-      applicantCitizenship: "Rwandan",
-      nationality: "Rwandan",
-      companyName: "Tech Solutions Ltd.",
-      tinNumber: "1234567890123456",
-      productName: "Smartphones",
-      description: "Electronics for retail sale",
-      quantity: 100,
-      unit: "Units",
-    };
-  
-    console.log("Submitting the form with hard-coded data:", hardCodedData);
-  
-    try {
-      const response = await fetch("http://localhost:8080/api/send-email", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(hardCodedData), 
-      });
-  
-      if (response.ok) {
-        toast.success("Form Submitted Successfully and Email Sent!");
-      } else {
-        toast.error("Submission successful, but email sending failed.");
-      }
-    } catch (error) {
-      console.error("Error sending email:", error);
-      toast.error("Error sending email. Please try again.");
-    }
     finally{
       setSubmitting(false);
     }
   };
+
   
 
 
@@ -194,6 +163,7 @@ const RicaImportPermitForm = () => {
     { code: '+46', country: 'Sweden' },
   ];
 
+
   return (
     <div className="container">
       <ToastContainer />
@@ -207,13 +177,13 @@ const RicaImportPermitForm = () => {
             Business Owner Details</h3>
           
           <div className="form-content">
+            <h4>Business Owner Address</h4>
             <div className="form-group">
               <label>
                 Applicant Citizenship <span className="required">*</span>
               </label>
               <select 
                 {...register("applicantCitizenship")}
-                onChange={(e) => setCitizenship(e.target.value)}
               >
                 <option value="">Select citizenship</option>
                 <option value="Rwandan">Rwandan</option>
@@ -289,6 +259,26 @@ const RicaImportPermitForm = () => {
               </div>
             </div>
 
+            <div className="form-row">
+              <div className="form-group">
+                <label>Other Names <span className="required">*</span></label>
+                <input
+                  {...register("otherNames")}
+                  type="text"
+                  placeholder="Enter Other Names"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Surname <span className="required">*</span></label>
+                <input
+                  {...register("surname")}
+                  type="text"
+                  placeholder="Enter your Surname"
+                />
+              </div>
+            </div>
+
             <div className="sub-section">
               <h4>Business Owner Address</h4>
               <div className="form-group">
@@ -317,6 +307,7 @@ const RicaImportPermitForm = () => {
             Business Details
           </h3>
           <div className="form-content">
+            <h4>Business Details</h4>
             <div className="form-row">
               <div className="form-group">
                 <label>
@@ -358,7 +349,7 @@ const RicaImportPermitForm = () => {
                 <label>
                   Registration Date <span className="required">*</span>
                 </label>
-                <input {...register("regDate")} type="date" />
+                <input {...register("regDate")} type="date" max={new Date().toISOString().split("T")[0]} />
               </div>
             </div>
 
@@ -398,7 +389,7 @@ const RicaImportPermitForm = () => {
                 </label>
                 <select
                   {...register("purposeOfImportation")}
-                  onChange={(e) => setPurpose(e.target.value)}
+                 
                 >
                   <option value="">Enter the purpose of importation</option>
                   <option value="Direct Sale">Direct Sale</option>
@@ -437,6 +428,15 @@ const RicaImportPermitForm = () => {
                   <option value="Construction Materials">Construction Materials</option>
                   <option value="Chemicals">Chemicals</option>
                 </select>
+              </div>
+
+              <div className="form-group">
+                <label>Product Name</label>
+                <input
+                  {...register("productName")}
+                  type="text"
+                  placeholder="Enter Product Name"
+                />
               </div>
 
               <div className="form-group">
@@ -485,7 +485,7 @@ const RicaImportPermitForm = () => {
         </section>
 
         <div className="form-actions">
-          <button type="submit">{submitting ? "Submitting" :" Submit Form"}</button>
+          <button type="submit"><span>{submitting ? "Submitting" :" Submit Form"}</span> {submitting && <span className="spinner"><Spinner/> </span>}</button>
         </div>
       </form>
     </div>

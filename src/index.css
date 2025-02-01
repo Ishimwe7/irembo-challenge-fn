@@ -132,6 +132,12 @@ textarea {
   color: #666;
 }
 
+.spinner{
+  width: 20px;
+  height: 20px;
+}
+
+
 .phone-input input {
   width: 100%;
   border-radius: 0 4px 4px 0;
@@ -177,6 +183,10 @@ button {
   font-size: 16px;
   cursor: pointer;
   transition: opacity 0.2s;
+  width: 200px;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
 }
 
 button:hover {
@@ -184,8 +194,6 @@ button:hover {
 }
 
 
-
-/* Add these styles to your CSS file */
 .phone-input-container {
   display: flex;
   gap: 8px;
