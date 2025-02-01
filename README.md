@@ -1,50 +1,82 @@
-# React + TypeScript + Vite
+🛃 Import Permit Application System
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+📌 Project Overview
 
-Currently, two official plugins are available:
+The Import Permit Application System is a web-based application that facilitates the process of applying for an import permit. It allows users to submit required details such as personal information, business details, and product specifications while ensuring form validation and email notifications.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+🚀 Features
 
-## Expanding the ESLint configuration
+📄 Form Validation using Yup & React Hook Form
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+📧 Automated Email Notifications upon form submission
 
-- Configure the top-level `parserOptions` property like this:
+📜 Conditional Field Requirements (e.g., ID for Rwandans, Passport for Foreigners)
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+📆 Date Selection Restriction (No future dates allowed)
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+🔄 Loading Spinner for better user experience
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+🛠️ Tech Stack
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+Frontend: React & TypeScript
+
+Backend: Spring Boot (Java), Lombok
+
+Validation: Yup, React Hook Form
+
+Email Service: SMTP with Java Mail
+
+Version Control: Git, GitHub
+
+🏗️ Getting Started
+
+1️⃣ Clone the Repository
+
+ git clone https://github.com/Ishimwe7/irembo-challenge-fn.git
+
+2️⃣ Backend Setup
+
+Prerequisites
+
+Java 17+
+
+Spring Boot
+
+PostgreSQL
+
+Maven
+
+Steps
+
+1️⃣ Clone Backend Repository
+
+ git clone https://github.com/Ishimwe7/irembo-challenge.git
+
+Update database configurations in application.properties Where Necessary.
+
+Build & run the application:
+
+mvn clean install
+mvn spring-boot:run
+
+Backend will be running at: http://localhost:8080
+
+3️⃣ Frontend Setup
+
+Prerequisites
+
+Node.js 18+
+
+npm or yarn
+
+Steps
+
+Install dependencies:
+
+npm install
+
+Start the development server:
+
+npm run dev
+
+Frontend will be running at: http://localhost:5173
